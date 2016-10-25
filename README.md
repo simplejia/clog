@@ -11,8 +11,10 @@
 ## 使用方法
 * agent机器
 > 布署本机agent服务：agent/agent，配置文件：agent/conf/conf.json
-* master机器：
+
+* master机器
 > 布署master服务：master/master，配置文件：master/conf/conf.json
+
 * agent和master服务建议用[cmonitor](http://github.com/simplejia/cmonitor)启动管理
 
 ## 注意
