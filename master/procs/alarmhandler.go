@@ -20,16 +20,19 @@ var AlarmFunc = func(sender string, receivers []string, text string) {
 	json.NewEncoder(os.Stdout).Encode(params)
 }
 
+// go1.6之后，map在并发情况下会exit掉，但基于实际并发不高，exit的可能很小
 var AlarmRegexps = make(map[string]*struct {
 	IncludesComp []*regexp.Regexp
 	ExcludesComp []*regexp.Regexp
 })
 
+// go1.6之后，map在并发情况下会exit掉，但基于实际并发不高，exit的可能很小
 var AlarmStats = make(map[string]*struct {
 	LastTime time.Time
 	LastText []byte
 })
 
+// go1.6之后，map在并发情况下会exit掉，但基于实际并发不高，exit的可能很小
 var AlarmParams = make(map[string]*struct {
 	Sender    string
 	Receivers []string
@@ -43,6 +46,7 @@ func AlarmHandler(cate, subcate string, content []byte, params map[string]interf
 	if !ok {
 		bs, _ := json.Marshal(params)
 		json.Unmarshal(bs, &paramsT)
+		AlarmParams[cate] = paramsT
 	}
 
 	if v, ok := AlarmRegexps[cate]; !ok {
@@ -94,18 +98,15 @@ func AlarmHandler(cate, subcate string, content []byte, params map[string]interf
 		AlarmStats[tube] = alarmstat
 	}
 
-	if bytes.Compare(alarmstat.LastText, content) == 0 {
-		if time.Since(alarmstat.LastTime) < time.Minute {
+	if time.Since(alarmstat.LastTime) < time.Second*30 {
+		return
+	} else if time.Since(alarmstat.LastTime) < time.Minute {
+		if bytes.Compare(alarmstat.LastText, content) == 0 {
 			return
 		}
 	} else {
-		alarmstat.LastText = content
-	}
-
-	if time.Since(alarmstat.LastTime) < time.Second*30 {
-		return
-	} else {
 		alarmstat.LastTime = time.Now()
+		alarmstat.LastText = content
 	}
 
 	AlarmFunc(paramsT.Sender, paramsT.Receivers, fmt.Sprintf("%s:%s", tube, content))
