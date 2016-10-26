@@ -41,7 +41,6 @@ var AlarmParams = make(map[string]*struct {
 })
 
 func AlarmHandler(cate, subcate string, content []byte, params map[string]interface{}) {
-	var includesComp, excludesComp []*regexp.Regexp
 	paramsT, ok := AlarmParams[cate]
 	if !ok {
 		bs, _ := json.Marshal(params)
@@ -49,6 +48,7 @@ func AlarmHandler(cate, subcate string, content []byte, params map[string]interf
 		AlarmParams[cate] = paramsT
 	}
 
+	var includesComp, excludesComp []*regexp.Regexp
 	if v, ok := AlarmRegexps[cate]; !ok {
 		includesComp = make([]*regexp.Regexp, 0)
 		for _, vv := range paramsT.Includes {
@@ -98,12 +98,9 @@ func AlarmHandler(cate, subcate string, content []byte, params map[string]interf
 		AlarmStats[tube] = alarmstat
 	}
 
-	if time.Since(alarmstat.LastTime) < time.Second*30 {
+	if time.Since(alarmstat.LastTime) < time.Second*30 ||
+		(time.Since(alarmstat.LastTime) < time.Minute && bytes.Compare(alarmstat.LastText, content) == 0) {
 		return
-	} else if time.Since(alarmstat.LastTime) < time.Minute {
-		if bytes.Compare(alarmstat.LastText, content) == 0 {
-			return
-		}
 	} else {
 		alarmstat.LastTime = time.Now()
 		alarmstat.LastText = content
