@@ -4,7 +4,7 @@
 * 我们做服务时，经常需要添加一些跟业务逻辑无关的功能，比如按错误日志报警，上报数据用于统计等等，这些功能和业务逻辑混在一起，实在没有必要，有了clog，我们只需要发送有效的数据，然后就可把数据处理的工作留给clog去做
 
 ## 功能
-* 发送日志至远程server主机，server可以配多台机器，api目前提供golang，c支持
+* 发送日志至远程server主机，server可以配多台机器，api目前提供golang，c，php支持
 * 根据配置(server/conf/conf.json)运行相关日志分析程序，目前已实现：日志输出，报警
 * 输出日志文件按server/logs/{模块名}/log{dbg|err|info|war}/{day}/log{ip}{+}{sub}规则命名，最多保存30天日志
 
@@ -51,6 +51,121 @@ func init() {
 }
 ```
 
+> 一个实际生产环境使用到的handler如下：（实现了接收数据后分发给多个订阅者的功能）
+
+```
+package procs
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/url"
+	"strings"
+	"time"
+
+	"github.com/simplejia/clog"
+	"github.com/simplejia/utils"
+)
+
+// go1.6之后，map在并发情况下会exit掉，但基于实际并发不高，exit的可能很小
+var TransParams = make(map[string]*struct {
+	Nodes []*struct {
+		Addr     string
+		AddrType string
+		Retry    int
+		Host     string
+		Cgi      string
+		Params   string
+		Method   string
+		Timeout  string
+	}
+})
+
+func TransHandler(cate, subcate, body string, params map[string]interface{}) {
+	clog.Info("TransHandler() Begin Trans: %s, %s, %s", cate, subcate, body)
+
+	paramsT, ok := TransParams[cate]
+	if !ok {
+		bs, _ := json.Marshal(params)
+		json.Unmarshal(bs, &paramsT)
+		TransParams[cate] = paramsT
+	}
+
+	arrs := []string{body}
+	json.Unmarshal([]byte(body), &arrs)
+	for pos, str := range arrs {
+		arrs[pos] = url.QueryEscape(str)
+	}
+
+	for _, node := range paramsT.Nodes {
+		addr := node.Addr
+		ps := map[string]string{}
+		values, _ := url.ParseQuery(fmt.Sprintf(node.Params, utils.Slice2Interface(arrs)...))
+		for k, vs := range values {
+			ps[k] = vs[0]
+		}
+
+		timeout, _ := time.ParseDuration(node.Timeout)
+
+		headers := map[string]string{
+			"Host": node.Host,
+		}
+
+		uri := fmt.Sprintf("http://%s/%s", addr, strings.TrimPrefix(node.Cgi, "/"))
+
+		for step := -1; step < node.Retry; step++ {
+			var (
+				body []byte
+				err  error
+			)
+			switch node.Method {
+			case "get":
+				body, err = utils.Get(uri, timeout, headers, ps)
+			case "post":
+				body, err = utils.Post(uri, timeout, headers, ps)
+			}
+
+			if err != nil {
+				clog.Error("TransHandler() http error, err: %v, body: %s, uri: %s, params: %v, step: %d", err, body, uri, ps, step)
+				continue
+			} else {
+				clog.Info("TransHandler() http success, body: %s, uri: %s, params: %v", body, uri, ps)
+				break
+			}
+		}
+	}
+
+	return
+}
+
+func init() {
+	RegisterHandler("transhandler", TransHandler)
+}
+```
+
+> 相应配置如下（server/conf/conf.json里配上一个模板）：
+
+```
+"trans": [
+    {   
+        "handler": "transhandler",
+        "params": {
+            "nodes": [
+                {   
+                    "addr": "127.0.0.1:80",
+                    "addrType": "ip",
+                    "host": "xx.xx.com",
+                    "cgi": "/c/a",
+                    "params": "a=1&b=%s&c=%s",
+                    "method": "post",
+                    "retry": 2,
+                    "timeout": "50ms"
+                }   
+            ]   
+        }   
+    }   
+]   
+```
 
 ## demo
 * [api_test.go](http://github.com/simplejia/clog/tree/master/api_test.go)
