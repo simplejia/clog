@@ -14,7 +14,7 @@ const (
 	ROOT_DIR = "logs"
 )
 
-func FileHandler(cate, subcate string, content []byte, params map[string]interface{}) {
+func FileHandler(cate, subcate, body string, params map[string]interface{}) {
 	now := time.Now()
 	dir := path.Join(ROOT_DIR, cate, strconv.Itoa(now.Day()))
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -37,11 +37,8 @@ func FileHandler(cate, subcate string, content []byte, params map[string]interfa
 	}
 	defer f.Close()
 
-	_, err = f.Write(append(content, fmt.Sprintf("[%02d:%02d:%02d]\n", now.Hour(), now.Minute(), now.Second())...))
-	if err != nil {
-		log.Printf("FileHandler() writefile error %v\n", err)
-		return
-	}
+	f.WriteString(body)
+	f.WriteString(fmt.Sprintf("[%02d:%02d:%02d]\n", now.Hour(), now.Minute(), now.Second()))
 	return
 }
 

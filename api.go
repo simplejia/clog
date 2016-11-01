@@ -4,15 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/simplejia/utils"
 )
 
 var (
-	Port      int = 28701
 	Level     int
 	Mode      int
 	cate_dbg  string
@@ -21,14 +18,18 @@ var (
 	cate_info string
 )
 
+// 请赋值成自己的获取master addr的函数
+var AddrFunc = func() string {
+	return "127.0.0.1:28702"
+}
+
 func sendAgent(tube, content string) {
-	conn, err := net.Dial("udp", "127.0.0.1:"+strconv.Itoa(Port))
+	conn, err := net.Dial("udp", AddrFunc())
 	if err != nil {
 		return
 	}
 	defer conn.Close()
 
-	conn.SetWriteDeadline(time.Now().Add(time.Millisecond))
 	conn.Write([]byte(tube + "," + content))
 }
 

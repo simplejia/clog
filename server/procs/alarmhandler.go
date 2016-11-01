@@ -1,11 +1,11 @@
 package procs
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"time"
 )
@@ -29,7 +29,7 @@ var AlarmRegexps = make(map[string]*struct {
 // go1.6之后，map在并发情况下会exit掉，但基于实际并发不高，exit的可能很小
 var AlarmStats = make(map[string]*struct {
 	LastTime time.Time
-	LastText []byte
+	LastText string
 })
 
 // go1.6之后，map在并发情况下会exit掉，但基于实际并发不高，exit的可能很小
@@ -40,7 +40,7 @@ var AlarmParams = make(map[string]*struct {
 	Excludes  []string
 })
 
-func AlarmHandler(cate, subcate string, content []byte, params map[string]interface{}) {
+func AlarmHandler(cate, subcate, body string, params map[string]interface{}) {
 	paramsT, ok := AlarmParams[cate]
 	if !ok {
 		bs, _ := json.Marshal(params)
@@ -69,7 +69,7 @@ func AlarmHandler(cate, subcate string, content []byte, params map[string]interf
 
 	result := false
 	for _, excludeComp := range excludesComp {
-		result = excludeComp.Match(content)
+		result = excludeComp.MatchString(body)
 		if result {
 			break
 		}
@@ -79,7 +79,7 @@ func AlarmHandler(cate, subcate string, content []byte, params map[string]interf
 	}
 
 	for _, includeComp := range includesComp {
-		result = includeComp.Match(content)
+		result = includeComp.MatchString(body)
 		if result {
 			break
 		}
@@ -93,20 +93,20 @@ func AlarmHandler(cate, subcate string, content []byte, params map[string]interf
 	if !ok {
 		alarmstat = &struct {
 			LastTime time.Time
-			LastText []byte
+			LastText string
 		}{}
 		AlarmStats[tube] = alarmstat
 	}
 
 	if time.Since(alarmstat.LastTime) < time.Second*30 ||
-		(time.Since(alarmstat.LastTime) < time.Minute && bytes.Compare(alarmstat.LastText, content) == 0) {
+		(time.Since(alarmstat.LastTime) < time.Minute && strings.Compare(alarmstat.LastText, body) == 0) {
 		return
 	} else {
 		alarmstat.LastTime = time.Now()
-		alarmstat.LastText = content
+		alarmstat.LastText = body
 	}
 
-	AlarmFunc(paramsT.Sender, paramsT.Receivers, fmt.Sprintf("%s:%s", tube, content))
+	AlarmFunc(paramsT.Sender, paramsT.Receivers, fmt.Sprintf("%s:%s", tube, body))
 	return
 }
 
