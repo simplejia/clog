@@ -1,112 +1,153 @@
 {
-    "env": "dev",
-    "tpl": { // 模板定义
-        "logerr_demo": [
-            {"handler": "filehandler"}, 
-            {
-                "handler": "alarmhandler", 
-                "params": {
-                    "sender": "demo", // 发送者id
-                    "receivers": ["simplejia"], // 接收者
-                    "excludes": [], // 正则，满足条件者不报警
-                    "includes": [".*"], // 正则，满足条件者报警
-                    "": null // placeholder
+    "dev": {
+        "port": 28702,
+        "tpl": { // 模板定义
+            "logerr_demo": [
+                {"handler": "filehandler"}, 
+                {
+                    "handler": "alarmhandler", 
+                    "params": {
+                        "sender": "demo", // 发送者id
+                        "receivers": ["simplejia"], // 接收者
+                        "excludes": [], // 正则，满足条件者不报警
+                        "includes": [".*"], // 正则，满足条件者报警
+                        "": null // placeholder
+                    }
                 }
-            }
-        ],
-        "logwar": [
-            {"handler": "filehandler"}
-        ],
-        "logdbg": [
-            {"handler": "filehandler"}
-        ],
-        "loginfo": [
-            {"handler": "filehandler"}
-        ]
+            ],
+            "logwar": [
+                {"handler": "filehandler"}
+            ],
+            "logdbg": [
+                {"handler": "filehandler"}
+            ],
+            "loginfo": [
+                {"handler": "filehandler"}
+            ]
+        },
+        "procs": {
+            "clog/logerr": "$logerr_demo",
+            "clog/logdbg": "$logdbg",
+            "clog/logwar": "$logwar",
+            "clog/loginfo": "$loginfo",
+
+            "cmonitor/logerr": "$logerr_demo",
+            "cmonitor/logdbg": "$logdbg",
+            "cmonitor/logwar": "$logwar",
+            "cmonitor/loginfo": "$loginfo",
+
+            "demo/logerr": "$logerr_demo",
+            "demo/logdbg": "$logdbg",
+            "demo/logwar": "$logwar",
+            "demo/loginfo": "$loginfo",
+
+            "": null // placeholder
+        },
+        "clog": {
+            "mode": 3, // 0: none, 1: localfile, 2: clog (数字代表bit位)
+            "level": 14 // 0: none, 1: debug, 2: warn 4: error 8: info (数字代表bit位)
+        },
+
+        "": null // placeholder
     },
-    "envs": {
-        "dev": {
-            "port": 28702,
-            "procs": {
-                "clog/logerr": "$logerr_demo",
-                "clog/logdbg": "$logdbg",
-                "clog/logwar": "$logwar",
-                "clog/loginfo": "$loginfo",
+    "test": {
+        "port": 28702,
+        "tpl": { // 模板定义
+            "logerr_demo": [
+                {"handler": "filehandler"}, 
+                {
+                    "handler": "alarmhandler", 
+                    "params": {
+                        "sender": "demo", // 发送者id
+                        "receivers": ["simplejia"], // 接收者
+                        "excludes": [], // 正则，满足条件者不报警
+                        "includes": [".*"], // 正则，满足条件者报警
+                        "": null // placeholder
+                    }
+                }
+            ],
+            "logwar": [
+                {"handler": "filehandler"}
+            ],
+            "logdbg": [
+                {"handler": "filehandler"}
+            ],
+            "loginfo": [
+                {"handler": "filehandler"}
+            ]
+        },
+        "procs": {
+            "clog/logerr": "$logerr_demo",
+            "clog/logdbg": "$logdbg",
+            "clog/logwar": "$logwar",
+            "clog/loginfo": "$loginfo",
 
-                "cmonitor/logerr": "$logerr_demo",
-                "cmonitor/logdbg": "$logdbg",
-                "cmonitor/logwar": "$logwar",
-                "cmonitor/loginfo": "$loginfo",
+            "cmonitor/logerr": "$logerr_demo",
+            "cmonitor/logdbg": "$logdbg",
+            "cmonitor/logwar": "$logwar",
+            "cmonitor/loginfo": "$loginfo",
 
-                "demo/logerr": "$logerr_demo",
-                "demo/logdbg": "$logdbg",
-                "demo/logwar": "$logwar",
-                "demo/loginfo": "$loginfo",
-
-                "": null // placeholder
-            },
-            "log": {
-                "mode": 3, // 0: none, 1: localfile, 2: clog (数字代表bit位)
-                "level": 14 // 0: none, 1: debug, 2: warn 4: error 8: info (数字代表bit位)
-            },
+            "demo/logerr": "$logerr_demo",
+            "demo/logdbg": "$logdbg",
+            "demo/logwar": "$logwar",
+            "demo/loginfo": "$loginfo",
 
             "": null // placeholder
         },
+        "clog": {
+            "mode": 3, // 0: none, 1: localfile, 2: clog (数字代表bit位)
+            "level": 14 // 0: none, 1: debug, 2: warn 4: error 8: info (数字代表bit位)
+        },
 
-        "test": {
-            "port": 28702,
-            "procs": {
-                "clog/logerr": "$logerr_demo",
-                "clog/logdbg": "$logdbg",
-                "clog/logwar": "$logwar",
-                "clog/loginfo": "$loginfo",
+        "": null // placeholder
+    },
+    "prod": {
+        "port": 28702,
+        "tpl": { // 模板定义
+            "logerr_demo": [
+                {"handler": "filehandler"}, 
+                {
+                    "handler": "alarmhandler", 
+                    "params": {
+                        "sender": "demo", // 发送者id
+                        "receivers": ["simplejia"], // 接收者
+                        "excludes": [], // 正则，满足条件者不报警
+                        "includes": [".*"], // 正则，满足条件者报警
+                        "": null // placeholder
+                    }
+                }
+            ],
+            "logwar": [
+                {"handler": "filehandler"}
+            ],
+            "logdbg": [
+                {"handler": "filehandler"}
+            ],
+            "loginfo": [
+                {"handler": "filehandler"}
+            ]
+        },
+        "procs": {
+            "clog/logerr": "$logerr_demo",
+            "clog/logdbg": "$logdbg",
+            "clog/logwar": "$logwar",
+            "clog/loginfo": "$loginfo",
 
-                "cmonitor/logerr": "$logerr_demo",
-                "cmonitor/logdbg": "$logdbg",
-                "cmonitor/logwar": "$logwar",
-                "cmonitor/loginfo": "$loginfo",
+            "cmonitor/logerr": "$logerr_demo",
+            "cmonitor/logdbg": "$logdbg",
+            "cmonitor/logwar": "$logwar",
+            "cmonitor/loginfo": "$loginfo",
 
-                "demo/logerr": "$logerr_demo",
-                "demo/logdbg": "$logdbg",
-                "demo/logwar": "$logwar",
-                "demo/loginfo": "$loginfo",
-
-                "": null // placeholder
-            },
-            "log": {
-                "mode": 3, // 0: none, 1: localfile, 2: clog (数字代表bit位)
-                "level": 14 // 0: none, 1: debug, 2: warn 4: error 8: info (数字代表bit位)
-            },
+            "demo/logerr": "$logerr_demo",
+            "demo/logdbg": "$logdbg",
+            "demo/logwar": "$logwar",
+            "demo/loginfo": "$loginfo",
 
             "": null // placeholder
         },
-
-        "prod": {
-            "port": 28702,
-            "procs": {
-                "clog/logerr": "$logerr_demo",
-                "clog/logdbg": "$logdbg",
-                "clog/logwar": "$logwar",
-                "clog/loginfo": "$loginfo",
-
-                "cmonitor/logerr": "$logerr_demo",
-                "cmonitor/logdbg": "$logdbg",
-                "cmonitor/logwar": "$logwar",
-                "cmonitor/loginfo": "$loginfo",
-
-                "demo/logerr": "$logerr_demo",
-                "demo/logdbg": "$logdbg",
-                "demo/logwar": "$logwar",
-                "demo/loginfo": "$loginfo",
-
-                "": null // placeholder
-            },
-            "log": {
-                "mode": 2, // 0: none, 1: localfile, 2: clog (数字代表bit位)
-                "level": 14 // 0: none, 1: debug, 2: warn 4: error 8: info (数字代表bit位)
-            },
-
-            "": null // placeholder
+        "clog": {
+            "mode": 2, // 0: none, 1: localfile, 2: clog (数字代表bit位)
+            "level": 14 // 0: none, 1: debug, 2: warn 4: error 8: info (数字代表bit位)
         },
 
         "": null // placeholder

@@ -16,7 +16,7 @@
 
 ## 注意
 * api.go文件里定义了获取server服务addr方法
-* server/conf/conf.json文件里，tpl定义模板，然后通过`$xxx`方式引用，目前支持的handler有：filehandler和alarmhandler，filehandler用来记录本地日志，alarmhandler用来发报警
+* server/conf/conf.json文件里，tpl定义模板，然后通过`$xxx`方式引用，目前支持的handler有：filehandler和alarmhandler，filehandler用来记录本地日志，alarmhandler用来发报警，可以通过传入自定义的env及conf参数来重定义配置文件里的参数，如：./cmonitor -env dev -conf='port=8080::clog.mode=1'，多个参数用`::`分隔
 * 对于alarmhandler，相关参数配置见params，目前的报警只是打印日志，实际实用，应替换成自己的报警处理逻辑，重新赋值procs.AlarmFunc就可以了，可以在server/procs目录下新建一个go文件，如下示例：
 ```
 package procs

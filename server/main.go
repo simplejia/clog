@@ -26,7 +26,7 @@ var (
 )
 
 func init() {
-	clog.Init("clog", "", conf.C.Log.Level, conf.C.Log.Mode)
+	clog.Init("clog", "", conf.C.Clog.Level, conf.C.Clog.Mode)
 }
 
 func main() {
