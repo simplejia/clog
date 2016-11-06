@@ -67,8 +67,7 @@ import (
 	"github.com/simplejia/utils"
 )
 
-// go1.6之后，map在并发情况下会exit掉，但基于实际并发不高，exit的可能很小
-var TransParams = make(map[string]*struct {
+type TransParam struct {
 	Nodes []*struct {
 		Addr     string
 		AddrType string
@@ -79,16 +78,17 @@ var TransParams = make(map[string]*struct {
 		Method   string
 		Timeout  string
 	}
-})
+}
 
 func TransHandler(cate, subcate, body string, params map[string]interface{}) {
 	clog.Info("TransHandler() Begin Trans: %s, %s, %s", cate, subcate, body)
 
-	paramsT, ok := TransParams[cate]
-	if !ok {
-		bs, _ := json.Marshal(params)
-		json.Unmarshal(bs, &paramsT)
-		TransParams[cate] = paramsT
+	var transParam *TransParam
+	bs, _ := json.Marshal(params)
+	json.Unmarshal(bs, &transParam)
+	if transParam == nil {
+		clog.Error("TransHandler() params not right: %v", params)
+		return
 	}
 
 	arrs := []string{body}
@@ -97,7 +97,7 @@ func TransHandler(cate, subcate, body string, params map[string]interface{}) {
 		arrs[pos] = url.QueryEscape(str)
 	}
 
-	for _, node := range paramsT.Nodes {
+	for _, node := range transParam.Nodes {
 		addr := node.Addr
 		ps := map[string]string{}
 		values, _ := url.ParseQuery(fmt.Sprintf(node.Params, utils.Slice2Interface(arrs)...))

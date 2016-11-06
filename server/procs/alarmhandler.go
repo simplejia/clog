@@ -3,9 +3,12 @@ package procs
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/simplejia/lc"
 
 	"time"
 )
@@ -20,51 +23,34 @@ var AlarmFunc = func(sender string, receivers []string, text string) {
 	json.NewEncoder(os.Stdout).Encode(params)
 }
 
-// go1.6之后，map在并发情况下会exit掉，但基于实际并发不高，exit的可能很小
-var AlarmRegexps = make(map[string]*struct {
-	IncludesComp []*regexp.Regexp
-	ExcludesComp []*regexp.Regexp
-})
-
-// go1.6之后，map在并发情况下会exit掉，但基于实际并发不高，exit的可能很小
-var AlarmStats = make(map[string]*struct {
+type AlarmStat struct {
 	LastTime time.Time
 	LastText string
-})
+}
 
-// go1.6之后，map在并发情况下会exit掉，但基于实际并发不高，exit的可能很小
-var AlarmParams = make(map[string]*struct {
+type AlarmParam struct {
 	Sender    string
 	Receivers []string
 	Includes  []string
 	Excludes  []string
-})
+}
 
 func AlarmHandler(cate, subcate, body string, params map[string]interface{}) {
-	paramsT, ok := AlarmParams[cate]
-	if !ok {
-		bs, _ := json.Marshal(params)
-		json.Unmarshal(bs, &paramsT)
-		AlarmParams[cate] = paramsT
+	var alarmParam *AlarmParam
+	bs, _ := json.Marshal(params)
+	json.Unmarshal(bs, &alarmParam)
+	if alarmParam == nil {
+		log.Printf("AlarmHandler() params not right: %v\n", params)
+		return
 	}
 
-	var includesComp, excludesComp []*regexp.Regexp
-	if v, ok := AlarmRegexps[cate]; !ok {
-		includesComp = make([]*regexp.Regexp, 0)
-		for _, vv := range paramsT.Includes {
-			includesComp = append(includesComp, regexp.MustCompile(vv))
-		}
-		excludesComp = make([]*regexp.Regexp, 0)
-		for _, vv := range paramsT.Excludes {
-			excludesComp = append(excludesComp, regexp.MustCompile(vv))
-		}
-		AlarmRegexps[cate] = &struct {
-			IncludesComp []*regexp.Regexp
-			ExcludesComp []*regexp.Regexp
-		}{includesComp, excludesComp}
-	} else {
-		includesComp = v.IncludesComp
-		excludesComp = v.ExcludesComp
+	includesComp := make([]*regexp.Regexp, 0)
+	for _, vv := range alarmParam.Includes {
+		includesComp = append(includesComp, regexp.MustCompile(vv))
+	}
+	excludesComp := make([]*regexp.Regexp, 0)
+	for _, vv := range alarmParam.Excludes {
+		excludesComp = append(excludesComp, regexp.MustCompile(vv))
 	}
 
 	result := false
@@ -89,13 +75,12 @@ func AlarmHandler(cate, subcate, body string, params map[string]interface{}) {
 	}
 
 	tube := cate + "|" + subcate
-	alarmstat, ok := AlarmStats[tube]
-	if !ok {
-		alarmstat = &struct {
-			LastTime time.Time
-			LastText string
-		}{}
-		AlarmStats[tube] = alarmstat
+	var alarmstat *AlarmStat
+	if alarmstat_lc, ok := lc.Get(tube); ok {
+		alarmstat = alarmstat_lc.(*AlarmStat)
+	} else {
+		alarmstat = &AlarmStat{}
+		lc.Set(tube, alarmstat, time.Hour)
 	}
 
 	if time.Since(alarmstat.LastTime) < time.Second*30 ||
@@ -106,7 +91,7 @@ func AlarmHandler(cate, subcate, body string, params map[string]interface{}) {
 		alarmstat.LastText = body
 	}
 
-	AlarmFunc(paramsT.Sender, paramsT.Receivers, fmt.Sprintf("%s:%s", tube, body))
+	AlarmFunc(alarmParam.Sender, alarmParam.Receivers, fmt.Sprintf("%s:%s", tube, body))
 	return
 }
 

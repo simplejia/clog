@@ -12,6 +12,7 @@ import (
 	"github.com/simplejia/clog"
 	"github.com/simplejia/clog/server/conf"
 	"github.com/simplejia/clog/server/procs"
+	"github.com/simplejia/lc"
 )
 
 type s struct {
@@ -26,6 +27,8 @@ var (
 )
 
 func init() {
+	lc.Init(1e5)
+
 	clog.Init("clog", "", conf.C.Clog.Level, conf.C.Clog.Mode)
 }
 
