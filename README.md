@@ -171,6 +171,3 @@ func init() {
 * [api_test.go](http://github.com/simplejia/clog/tree/master/api_test.go)
 * [demo](http://github.com/simplejia/wsp/tree/master/demo) (demo项目里有clog的使用例子)
 
-## LICENSE
-clog is licensed under the Apache Licence, Version 2.0
-(http://www.apache.org/licenses/LICENSE-2.0.html)
