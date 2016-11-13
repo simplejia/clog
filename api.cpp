@@ -1,3 +1,5 @@
+// +build ignore
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -31,7 +33,7 @@ string datetime()
     time_t now;
     time(&now);
     struct tm* t=localtime(&now);
-    char timestr[80];
+    char timestr[32];
     strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", t);
     return timestr;
 }
