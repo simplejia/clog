@@ -112,7 +112,12 @@ func TransHandler(cate, subcate, body string, params map[string]interface{}) {
 			"Host": node.Host,
 		}
 
-		uri := fmt.Sprintf("http://%s/%s", addr, strings.TrimPrefix(node.Cgi, "/"))
+        gpp := &utils.GPP{
+            Uri: fmt.Sprintf("http://%s/%s", addr, strings.TrimPrefix(node.Cgi, "/")),
+            Timeout: timeout,
+            Headers: headers,
+            Params: ps,
+        }
 
 		for step := -1; step < node.Retry; step++ {
 			var (
@@ -121,16 +126,16 @@ func TransHandler(cate, subcate, body string, params map[string]interface{}) {
 			)
 			switch node.Method {
 			case "get":
-				body, err = utils.Get(uri, timeout, headers, ps)
+				body, err = utils.Get(gpp)
 			case "post":
-				body, err = utils.Post(uri, timeout, headers, ps)
+				body, err = utils.Post(gpp)
 			}
 
 			if err != nil {
-				clog.Error("TransHandler() http error, err: %v, body: %s, uri: %s, params: %v, step: %d", err, body, uri, ps, step)
+				clog.Error("TransHandler() http error, err: %v, body: %s, gpp: %v, step: %d", err, body, gpp, step)
 				continue
 			} else {
-				clog.Info("TransHandler() http success, body: %s, uri: %s, params: %v", body, uri, ps)
+				clog.Info("TransHandler() http success, body: %s, gpp: %v", body, gpp)
 				break
 			}
 		}
@@ -287,7 +292,12 @@ func TransHandler(cate, subcate, body string, params map[string]interface{}) {
 			"Host": node.Host,
 		}
 
-		uri := fmt.Sprintf("http://%s/%s", addr, strings.TrimPrefix(node.Cgi, "/"))
+        gpp := &utils.GPP{
+            Uri: fmt.Sprintf("http://%s/%s", addr, strings.TrimPrefix(node.Cgi, "/")),
+            Timeout: timeout,
+            Headers: headers,
+            Params: ps,
+        }
 
 		for step := -1; step < node.Retry; step++ {
 			var (
@@ -296,16 +306,16 @@ func TransHandler(cate, subcate, body string, params map[string]interface{}) {
 			)
 			switch node.Method {
 			case "get":
-				body, err = utils.Get(uri, timeout, headers, ps)
+				body, err = utils.Get(gpp)
 			case "post":
-				body, err = utils.Post(uri, timeout, headers, ps)
+				body, err = utils.Post(gpp)
 			}
 
 			if err != nil {
-				clog.Error("TransHandler() http error, err: %v, body: %s, uri: %s, params: %v, step: %d", err, body, uri, ps, step)
+				clog.Error("TransHandler() http error, err: %v, body: %s, gpp: %v, step: %d", err, body, gpp, step)
 				continue
 			} else {
-				clog.Info("TransHandler() http success, body: %s, uri: %s, params: %v", body, uri, ps)
+				clog.Info("TransHandler() http success, body: %s, gpp: %v", body, gpp)
 				break
 			}
 		}
