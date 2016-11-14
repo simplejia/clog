@@ -1,3 +1,179 @@
+# [clog](http://github.com/simplejia/clog) (Centralized log collection service)
+## Original Intention
+* In actual projects, the service will be deplored to many servers and it is not convenient to view local logs. But it is convenient to view logs via collecting logs to one or two computers. The logs exist in the form of files and are respectively stored according to their service names, ip addresses, dates and types.
+* In our service, we often need add some features that have nothing to do with our business logic, such as alarm logs, reporting data for statistics and so on. It is really not necessary mix these features and business logic. While having clog, we just need send effective data and leave clog to deal with the data.
+
+## Functions
+* Sending logs to remote host which can be equipped with one or two servers. 
+* Api currently offers golang, c, php.
+* According to the configuration (server/conf/conf.json), clog will execute relevant log handlers.  And log output and alarm process have been implemented so far.
+* The output log files is named according to server/logs/{module name}/log{dbg|err|info|war}/{day}/log{ip}{+}{sub}. And the logs can be saved at most 30 days.
+
+## Usage
+* server
+> Deploring server service: server/server, configuring files: server/conf/conf.json
+
+* Recommending using [cmonitor](http://github.com/simplejia/cmonitor) to manage
+
+## Notice
+* api.go has defined AddrFunc variable to get server address, you can redefine it.
+* In server/conf/conf.json files, tpl defines template and then is cited via $xxx. Currently supported handlers are filehandler and alarmhandler. Filehandler is used to record local logs and alarmhandler is used to send alarms. you can redefine the parameters in configuration files via passing custom env and conf parameter, for example: ./server -env dev -conf='port=8080::clog.mode=1'(multiple parameters are seperated by `::`
+* For alarmhandler, relevant parameter configuration can be referred to params field. In current alarms, it just provides output logs. In actual use, we should replace it with our own alarm logic by redefine procs.AlarmFunc. We can create a new go file under the directory of server/procs, as following:
+```
+package procs
+
+import (
+	"encoding/json"
+	"os"
+)
+
+func init() {
+	// replace it with your own alarm function
+	AlarmFunc = func(sender string, receivers []string, text string) {
+		params := map[string]interface{}{
+			"Sender":    sender,
+			"Receivers": receivers,
+			"Text":      text,
+		}
+		json.NewEncoder(os.Stdout).Encode(params)
+	}
+}
+```
+* Alarmhandler has anti disturbance control logic, the same content will not be alarmed again within one minute. The interval between two alarms is not less than 30 seconds.
+* If you want to add a new handler, you just need create a new go file under the directory of server/procs, as following:
+```
+package procs
+
+func XxxHandler(cate, subcate string, content []byte, params map[string]interface{}) {
+}
+
+func init() {
+	RegisterHandler("xxxhandler", XxxHandler)
+}
+```
+
+> Handler used in product is as following:(having implemented the function of sending data to multiple subscribers after receiving it)
+
+```
+package procs
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/url"
+	"strings"
+	"time"
+
+	"github.com/simplejia/clog"
+	"github.com/simplejia/utils"
+)
+
+type TransParam struct {
+	Nodes []*struct {
+		Addr     string
+		AddrType string
+		Retry    int
+		Host     string
+		Cgi      string
+		Params   string
+		Method   string
+		Timeout  string
+	}
+}
+
+func TransHandler(cate, subcate, body string, params map[string]interface{}) {
+	clog.Info("TransHandler() Begin Trans: %s, %s, %s", cate, subcate, body)
+
+	var transParam *TransParam
+	bs, _ := json.Marshal(params)
+	json.Unmarshal(bs, &transParam)
+	if transParam == nil {
+		clog.Error("TransHandler() params not right: %v", params)
+		return
+	}
+
+	arrs := []string{body}
+	json.Unmarshal([]byte(body), &arrs)
+	for pos, str := range arrs {
+		arrs[pos] = url.QueryEscape(str)
+	}
+
+	for _, node := range transParam.Nodes {
+		addr := node.Addr
+		ps := map[string]string{}
+		values, _ := url.ParseQuery(fmt.Sprintf(node.Params, utils.Slice2Interface(arrs)...))
+		for k, vs := range values {
+			ps[k] = vs[0]
+		}
+
+		timeout, _ := time.ParseDuration(node.Timeout)
+
+		headers := map[string]string{
+			"Host": node.Host,
+		}
+
+		uri := fmt.Sprintf("http://%s/%s", addr, strings.TrimPrefix(node.Cgi, "/"))
+
+		for step := -1; step < node.Retry; step++ {
+			var (
+				body []byte
+				err  error
+			)
+			switch node.Method {
+			case "get":
+				body, err = utils.Get(uri, timeout, headers, ps)
+			case "post":
+				body, err = utils.Post(uri, timeout, headers, ps)
+			}
+
+			if err != nil {
+				clog.Error("TransHandler() http error, err: %v, body: %s, uri: %s, params: %v, step: %d", err, body, uri, ps, step)
+				continue
+			} else {
+				clog.Info("TransHandler() http success, body: %s, uri: %s, params: %v", body, uri, ps)
+				break
+			}
+		}
+	}
+
+	return
+}
+
+func init() {
+	RegisterHandler("transhandler", TransHandler)
+}
+```
+
+> Corresponding configuration is as following（configuring a template field in server/conf/conf.json）：
+
+```
+"trans": [
+    {   
+        "handler": "transhandler",
+        "params": {
+            "nodes": [
+                {   
+                    "addr": "127.0.0.1:80",
+                    "addrType": "ip",
+                    "host": "xx.xx.com",
+                    "cgi": "/c/a",
+                    "params": "a=1&b=%s&c=%s",
+                    "method": "post",
+                    "retry": 2,
+                    "timeout": "50ms"
+                }   
+            ]   
+        }   
+    }   
+]   
+```
+
+## demo
+* [api_test.go](http://github.com/simplejia/clog/tree/master/api_test.go)
+* [demo](http://github.com/simplejia/wsp/tree/master/demo) (has examples for using clog)
+
+---
+
 # [clog](http://github.com/simplejia/clog) (集中式日志收集服务)
 ## 实现初衷
 * 实际项目中，服务会部署到多台服务器上去，机器本地日志不方便查看，通过集中收集日志到一台或两台机器上，日志以文件形式存在，按服务名，ip，日期，日志类型分别存储，这样查看日志时就方便多了
@@ -16,7 +192,7 @@
 
 ## 注意
 * api.go文件里定义了获取server服务addr方法
-* server/conf/conf.json文件里，tpl定义模板，然后通过`$xxx`方式引用，目前支持的handler有：filehandler和alarmhandler，filehandler用来记录本地日志，alarmhandler用来发报警，可以通过传入自定义的env及conf参数来重定义配置文件里的参数，如：./cmonitor -env dev -conf='port=8080::clog.mode=1'，多个参数用`::`分隔
+* server/conf/conf.json文件里，tpl定义模板，然后通过`$xxx`方式引用，目前支持的handler有：filehandler和alarmhandler，filehandler用来记录本地日志，alarmhandler用来发报警，可以通过传入自定义的env及conf参数来重定义配置文件里的参数，如：./server -env dev -conf='port=8080::clog.mode=1'，多个参数用`::`分隔
 * 对于alarmhandler，相关参数配置见params，目前的报警只是打印日志，实际实用，应替换成自己的报警处理逻辑，重新赋值procs.AlarmFunc就可以了，可以在server/procs目录下新建一个go文件，如下示例：
 ```
 package procs
