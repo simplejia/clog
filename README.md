@@ -17,7 +17,7 @@
 
 ## Notice
 * api.go has defined AddrFunc variable to get server address, you can redefine it.
-* In server/conf/conf.json files, tpl defines template and then is cited via $xxx. Currently supported handlers are filehandler and alarmhandler. Filehandler is used to record local logs and alarmhandler is used to send alarms. you can redefine the parameters in configuration files via passing custom env and conf parameter, for example: ./server -env dev -conf='port=8080::clog.mode=1'(multiple parameters are seperated by `::`
+* In server/conf/conf.json files, tpl defines template and then is cited via $xxx. Currently supported handlers are filehandler and alarmhandler. Filehandler is used to record local logs and alarmhandler is used to send alarms. you can redefine the parameters in configuration files via passing custom env and conf parameter, for example: ./server -env dev -conf='port=8080;clog.mode=1'(multiple parameters are seperated by `;`
 * For alarmhandler, relevant parameter configuration can be referred to params field. In current alarms, it just provides output logs. In actual use, we should replace it with our own alarm logic by redefine procs.AlarmFunc. We can create a new go file under the directory of server/procs, as following:
 ```
 package procs
@@ -197,7 +197,7 @@ func init() {
 
 ## 注意
 * api.go文件里定义了获取server服务addr方法
-* server/conf/conf.json文件里，tpl定义模板，然后通过`$xxx`方式引用，目前支持的handler有：filehandler和alarmhandler，filehandler用来记录本地日志，alarmhandler用来发报警，可以通过传入自定义的env及conf参数来重定义配置文件里的参数，如：./server -env dev -conf='port=8080::clog.mode=1'，多个参数用`::`分隔
+* server/conf/conf.json文件里，tpl定义模板，然后通过`$xxx`方式引用，目前支持的handler有：filehandler和alarmhandler，filehandler用来记录本地日志，alarmhandler用来发报警，可以通过传入自定义的env及conf参数来重定义配置文件里的参数，如：./server -env dev -conf='port=8080;clog.mode=1'，多个参数用`;`分隔
 * 对于alarmhandler，相关参数配置见params，目前的报警只是打印日志，实际实用，应替换成自己的报警处理逻辑，重新赋值procs.AlarmFunc就可以了，可以在server/procs目录下新建一个go文件，如下示例：
 ```
 package procs
