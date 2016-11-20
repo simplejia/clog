@@ -174,11 +174,11 @@ func init() {
     ]   
 },
 "procs": {
-    "demo/logcust_1": "$trans"
+    "demo/logcust_trans": "$trans"
 }
 ```
 
-> the clog.Cust() function in api.go will be used: clog.Cust("1", "xxx", "xxx", ...)
+> the clog.Cust() function in api.go will be used: clog.Cust("trans", "xxx", "xxx", ...)
 
 ## demo
 * [api_test.go](http://github.com/simplejia/clog/tree/master/api_test.go)
@@ -361,11 +361,11 @@ func init() {
     ]   
 },
 "procs": {
-    "demo/logcust_1": "$trans"
+    "demo/logcust_trans": "$trans"
 }
 ```
 
-> 使用时调用api.go里提供的clog.Cust函数: clog.Cust("1", "xxx", "xxx", ...)
+> 使用时调用api.go里提供的clog.Cust函数: clog.Cust("trans", "xxx", "xxx", ...)
 
 ## demo
 * [api_test.go](http://github.com/simplejia/clog/tree/master/api_test.go)
