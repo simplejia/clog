@@ -16,6 +16,7 @@ var (
 	cate_war  string
 	cate_err  string
 	cate_info string
+	cate_cust string
 )
 
 // 请赋值成自己的获取master addr的函数
@@ -42,6 +43,7 @@ func Init(module, subcate string, level int, mode int) {
 	cate_war = strings.Join([]string{module, "logwar", utils.GetLocalIp(), subcate}, ",")
 	cate_err = strings.Join([]string{module, "logerr", utils.GetLocalIp(), subcate}, ",")
 	cate_info = strings.Join([]string{module, "loginfo", utils.GetLocalIp(), subcate}, ",")
+	cate_cust = strings.Join([]string{module, "logcust_%s", utils.GetLocalIp(), subcate}, ",")
 
 	Level = level
 	Mode = mode
@@ -92,5 +94,15 @@ func Info(format string, params ...interface{}) {
 		if Mode&2 != 0 {
 			sendAgent(cate_info, content)
 		}
+	}
+}
+
+func Cust(sub string, format string, params ...interface{}) {
+	content := fmt.Sprintf(format, params...)
+	if Mode&1 != 0 {
+		log.Println(content)
+	}
+	if Mode&2 != 0 {
+		sendAgent(fmt.Sprintf(cate_cust, sub), content)
 	}
 }

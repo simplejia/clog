@@ -8,4 +8,5 @@ func TestClog(t *testing.T) {
 	Warn("warn msg")
 	Error("error msg")
 	Info("info msg")
+	Cust("1", "cust msg")
 }

@@ -152,26 +152,33 @@ func init() {
 > Corresponding configuration is as following（configuring a template field in server/conf/conf.json）：
 
 ```
-"trans": [
-    {   
-        "handler": "transhandler",
-        "params": {
-            "nodes": [
-                {   
-                    "addr": "127.0.0.1:80",
-                    "addrType": "ip",
-                    "host": "xx.xx.com",
-                    "cgi": "/c/a",
-                    "params": "a=1&b=%s&c=%s",
-                    "method": "post",
-                    "retry": 2,
-                    "timeout": "50ms"
-                }   
-            ]   
+"tpl": { 
+    "trans": [
+        {   
+            "handler": "transhandler",
+            "params": {
+                "nodes": [
+                    {   
+                        "addr": "127.0.0.1:80",
+                        "addrType": "ip",
+                        "host": "xx.xx.com",
+                        "cgi": "/c/a",
+                        "params": "a=1&b=%s&c=%s",
+                        "method": "post",
+                        "retry": 2,
+                        "timeout": "50ms"
+                    }   
+                ]   
+            }   
         }   
-    }   
-]   
+    ]   
+},
+"procs": {
+    "demo/logcust_1": "$trans"
+}
 ```
+
+> the clog.Cust() function in api.go will be used: clog.Cust("1", "xxx", "xxx", ...)
 
 ## demo
 * [api_test.go](http://github.com/simplejia/clog/tree/master/api_test.go)
@@ -332,26 +339,33 @@ func init() {
 > 相应配置如下（server/conf/conf.json里配上一个模板）：
 
 ```
-"trans": [
-    {   
-        "handler": "transhandler",
-        "params": {
-            "nodes": [
-                {   
-                    "addr": "127.0.0.1:80",
-                    "addrType": "ip",
-                    "host": "xx.xx.com",
-                    "cgi": "/c/a",
-                    "params": "a=1&b=%s&c=%s",
-                    "method": "post",
-                    "retry": 2,
-                    "timeout": "50ms"
-                }   
-            ]   
+"tpl": { // 模板定义
+    "trans": [
+        {   
+            "handler": "transhandler",
+            "params": {
+                "nodes": [
+                    {   
+                        "addr": "127.0.0.1:80",
+                        "addrType": "ip",
+                        "host": "xx.xx.com",
+                        "cgi": "/c/a",
+                        "params": "a=1&b=%s&c=%s",
+                        "method": "post",
+                        "retry": 2,
+                        "timeout": "50ms"
+                    }   
+                ]   
+            }   
         }   
-    }   
-]   
+    ]   
+},
+"procs": {
+    "demo/logcust_1": "$trans"
+}
 ```
+
+> 使用时调用api.go里提供的clog.Cust函数: clog.Cust("1", "xxx", "xxx", ...)
 
 ## demo
 * [api_test.go](http://github.com/simplejia/clog/tree/master/api_test.go)
