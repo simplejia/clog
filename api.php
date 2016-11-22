@@ -9,12 +9,14 @@ class CLog
     private $warcate;
     private $errcate;
     private $infocate;
+    private $busicate;
 
     public function __construct($ip, $port, $level, $localip, $module, $subcate) {
         $this->dbgcate = implode(',', array($module, 'logdbg', $localip, $subcate));
         $this->warcate = implode(',', array($module, 'logwar', $localip, $subcate));
         $this->errcate = implode(',', array($module, 'logerr', $localip, $subcate));
         $this->infocate = implode(',', array($module, 'loginfo', $localip, $subcate));
+        $this->busicate = implode(',', array($module, 'logbusi_%s', $localip, $subcate));
         $this->ip = $ip;
         $this->port = $port;
         $this->level = $level;
@@ -56,6 +58,10 @@ class CLog
         if (($this->level & 8) != 0) {
             $this->Log($this->infocate, $content);
         }
+    }   
+
+    public function Busi($sub, $content) {
+        $this->Log(sprintf($this->busicate, $sub), $content);
     }   
 }
 
