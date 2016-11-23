@@ -104,7 +104,7 @@ func Info(format string, params ...interface{}) {
 func Busi(sub string, format string, params ...interface{}) {
 	content := fmt.Sprintf(format, params...)
 	if Mode&1 != 0 {
-		log.Println(content)
+		log.Println(sub, content)
 	}
 	if Mode&2 != 0 {
 		sendAgent(fmt.Sprintf(cate_busi, sub), content)
