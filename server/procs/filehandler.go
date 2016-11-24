@@ -42,41 +42,30 @@ func FileHandler(cate, subcate, body string, params map[string]interface{}) {
 	return
 }
 
-func timerproc() {
+func filehandlerTimer() {
+	tick := time.Tick(time.Hour * 24)
 	for {
-		func() {
-			defer func() {
-				if err := recover(); err != nil {
-					log.Printf("timerproc() recover %v\n", err)
+		select {
+		case <-tick:
+			day := strconv.Itoa(time.Now().Add(time.Hour * 24).Day())
+			filepath.Walk(ROOT_DIR, func(path string, info os.FileInfo, err error) (reterr error) {
+				if err != nil {
+					return
 				}
-			}()
-
-			tick := time.Tick(time.Hour * 24)
-			for {
-				select {
-				case <-tick:
-					day := strconv.Itoa(time.Now().Add(time.Hour * 24).Day())
-					filepath.Walk(ROOT_DIR, func(path string, info os.FileInfo, err error) (reterr error) {
-						if err != nil {
-							return
-						}
-						if !info.IsDir() {
-							return
-						}
-						if info.Name() != day {
-							return
-						}
-						os.RemoveAll(path)
-						return
-					})
+				if !info.IsDir() {
+					return
 				}
-			}
-		}()
-		time.Sleep(time.Second * 5)
+				if info.Name() != day {
+					return
+				}
+				os.RemoveAll(path)
+				return
+			})
+		}
 	}
 }
 
 func init() {
 	RegisterHandler("filehandler", FileHandler)
-	go timerproc()
+	go filehandlerTimer()
 }
