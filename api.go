@@ -43,11 +43,11 @@ func Init(module, subcate string, level int, mode int) {
 		panic("clog Init error, module or subcate contains ','")
 	}
 
-	cate_dbg = strings.Join([]string{module, "logdbg", utils.GetLocalIp(), subcate}, ",")
-	cate_war = strings.Join([]string{module, "logwar", utils.GetLocalIp(), subcate}, ",")
-	cate_err = strings.Join([]string{module, "logerr", utils.GetLocalIp(), subcate}, ",")
-	cate_info = strings.Join([]string{module, "loginfo", utils.GetLocalIp(), subcate}, ",")
-	cate_busi = strings.Join([]string{module, "logbusi_%s", utils.GetLocalIp(), subcate}, ",")
+	cate_dbg = strings.Join([]string{module, "logdbg", utils.LocalIp, subcate}, ",")
+	cate_war = strings.Join([]string{module, "logwar", utils.LocalIp, subcate}, ",")
+	cate_err = strings.Join([]string{module, "logerr", utils.LocalIp, subcate}, ",")
+	cate_info = strings.Join([]string{module, "loginfo", utils.LocalIp, subcate}, ",")
+	cate_busi = strings.Join([]string{module, "logbusi_%s", utils.LocalIp, subcate}, ",")
 
 	Level = level
 	Mode = mode
