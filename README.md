@@ -1,3 +1,6 @@
+[中文 README](#中文)
+
+
 # [clog](http://github.com/simplejia/clog) (Centralized log collection service)
 ## Original Intention
 * In actual projects, the service will be deplored to many servers and it is not convenient to view local logs. But it is convenient to view logs via collecting logs to one or two computers. The logs exist in the form of files and are respectively stored according to their service names, ip addresses, dates and types.
@@ -185,6 +188,8 @@ func init() {
 * [demo](http://github.com/simplejia/wsp/tree/master/demo) (has examples for using clog)
 
 ---
+中文
+===
 
 # [clog](http://github.com/simplejia/clog) (集中式日志收集服务)
 ## 实现初衷
