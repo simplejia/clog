@@ -82,7 +82,7 @@ func dispatch() {
 		k := cate + "," + subcate
 		tube, ok := tubes[k]
 		if !ok {
-			tube = make(chan *s, 1e6)
+			tube = make(chan *s, 1e5)
 			tubes[k] = tube
 			go proc(k)
 		}
