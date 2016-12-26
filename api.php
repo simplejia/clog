@@ -76,4 +76,5 @@ $clog->Debug("dbg msg");
 $clog->Warn("war msg");
 $clog->Error("err msg");
 $clog->Info("info msg");
+$clog->Busi("sub", "busi msg");
 
