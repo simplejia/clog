@@ -21,10 +21,7 @@ type s struct {
 	body    string
 }
 
-var (
-	buf   = make(chan string, 1e6)
-	tubes = make(map[string]chan *s)
-)
+var tubes = make(map[string]chan *s)
 
 func init() {
 	lc.Init(1e5)
@@ -36,8 +33,6 @@ func main() {
 	log.Println("main()")
 
 	go recv()
-	go dispatch()
-
 	select {}
 }
 
@@ -59,16 +54,8 @@ func recv() {
 		if err != nil || readLen <= 0 {
 			continue
 		}
-		select {
-		case buf <- string(request[:readLen]):
-		default:
-		}
-	}
-}
 
-func dispatch() {
-	for d := range buf {
-		ss := strings.SplitN(d, ",", 5)
+		ss := strings.SplitN(string(request[:readLen]), ",", 5)
 		if len(ss) != 5 {
 			continue
 		}
