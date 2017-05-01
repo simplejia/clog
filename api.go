@@ -57,7 +57,7 @@ func Debug(format string, params ...interface{}) {
 	if Level&1 != 0 {
 		content := fmt.Sprintf(format, params...)
 		if Mode&1 != 0 {
-			log.Println("[Debug]", content)
+			log.Println("[DEBUG]", content)
 		}
 		if Mode&2 != 0 {
 			sendAgent(cate_dbg, content)
@@ -69,7 +69,7 @@ func Warn(format string, params ...interface{}) {
 	if Level&2 != 0 {
 		content := fmt.Sprintf(format, params...)
 		if Mode&1 != 0 {
-			log.Println("[Warn]", content)
+			log.Println("[WARN]", content)
 		}
 		if Mode&2 != 0 {
 			sendAgent(cate_war, content)
@@ -81,7 +81,7 @@ func Error(format string, params ...interface{}) {
 	if Level&4 != 0 {
 		content := fmt.Sprintf(format, params...)
 		if Mode&1 != 0 {
-			log.Println("[Error]", content)
+			log.Println("[ERROR]", content)
 		}
 		if Mode&2 != 0 {
 			sendAgent(cate_err, content)
@@ -93,7 +93,7 @@ func Info(format string, params ...interface{}) {
 	if Level&8 != 0 {
 		content := fmt.Sprintf(format, params...)
 		if Mode&1 != 0 {
-			log.Println("[Info]", content)
+			log.Println("[INFO]", content)
 		}
 		if Mode&2 != 0 {
 			sendAgent(cate_info, content)
@@ -104,7 +104,7 @@ func Info(format string, params ...interface{}) {
 func Busi(sub string, format string, params ...interface{}) {
 	content := fmt.Sprintf(format, params...)
 	if Mode&1 != 0 {
-		log.Println("[Busi]", sub, content)
+		log.Println("[BUSI]", sub, content)
 	}
 	if Mode&2 != 0 {
 		sendAgent(fmt.Sprintf(cate_busi, sub), content)
