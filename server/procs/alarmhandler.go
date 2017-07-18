@@ -76,7 +76,7 @@ func AlarmHandler(cate, subcate, body string, params map[string]interface{}) {
 
 	tube := cate + "|" + subcate
 	var alarmstat *AlarmStat
-	if alarmstat_lc, ok := lc.Get(tube); ok {
+	if alarmstat_lc, ok := lc.Get(tube); ok && alarmstat_lc != nil {
 		alarmstat = alarmstat_lc.(*AlarmStat)
 	} else {
 		alarmstat = &AlarmStat{}
