@@ -1,12 +1,14 @@
 package procs
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -14,6 +16,10 @@ import (
 const (
 	ROOT_DIR = "logs"
 )
+
+type FileParam struct {
+	Excludes []string
+}
 
 var (
 	fileMutex sync.RWMutex
@@ -23,6 +29,17 @@ var (
 )
 
 func FileHandler(cate, subcate, body string, params map[string]interface{}) {
+	var fileParam *FileParam
+	bs, _ := json.Marshal(params)
+	json.Unmarshal(bs, &fileParam)
+	if fileParam != nil {
+		for _, exclude := range fileParam.Excludes {
+			if strings.Contains(body, exclude) {
+				return
+			}
+		}
+	}
+
 	key := cate + "," + subcate
 
 	fileMutex.RLock()

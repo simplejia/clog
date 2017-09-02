@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"strings"
 
-	"github.com/simplejia/clog"
 	"github.com/simplejia/clog/server/conf"
 	"github.com/simplejia/clog/server/procs"
 	"github.com/simplejia/lc"
@@ -25,19 +25,28 @@ var tubes = make(map[string]chan *s)
 
 func init() {
 	lc.Init(1e5)
-
-	clog.Init("clog", "", conf.C.Clog.Level, conf.C.Clog.Mode)
 }
 
 func main() {
 	log.Println("main()")
 
+	go ws()
 	go recv()
 	select {}
 }
 
+func ws() {
+	http.HandleFunc("/clog/conf/get", conf.Cgi)
+
+	addr := fmt.Sprintf("%s:%d", "0.0.0.0", conf.Get().AdminPort)
+	err := http.ListenAndServe(addr, nil)
+	if err != nil {
+		log.Fatalln("net.ListenAndServe error:", err)
+	}
+}
+
 func recv() {
-	udpAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf(":%d", conf.C.Port))
+	udpAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf(":%d", conf.Get().Port))
 	if err != nil {
 		log.Fatalln("net.ResolveUDPAddr error:", err)
 	}

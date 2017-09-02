@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/simplejia/lc"
@@ -31,7 +30,6 @@ type AlarmStat struct {
 type AlarmParam struct {
 	Sender    string
 	Receivers []string
-	Includes  []string
 	Excludes  []string
 }
 
@@ -44,34 +42,10 @@ func AlarmHandler(cate, subcate, body string, params map[string]interface{}) {
 		return
 	}
 
-	includesComp := make([]*regexp.Regexp, 0)
-	for _, vv := range alarmParam.Includes {
-		includesComp = append(includesComp, regexp.MustCompile(vv))
-	}
-	excludesComp := make([]*regexp.Regexp, 0)
-	for _, vv := range alarmParam.Excludes {
-		excludesComp = append(excludesComp, regexp.MustCompile(vv))
-	}
-
-	result := false
-	for _, excludeComp := range excludesComp {
-		result = excludeComp.MatchString(body)
-		if result {
-			break
+	for _, exclude := range alarmParam.Excludes {
+		if strings.Contains(body, exclude) {
+			return
 		}
-	}
-	if result {
-		return
-	}
-
-	for _, includeComp := range includesComp {
-		result = includeComp.MatchString(body)
-		if result {
-			break
-		}
-	}
-	if !result {
-		return
 	}
 
 	tube := cate + "|" + subcate

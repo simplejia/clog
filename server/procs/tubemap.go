@@ -18,7 +18,7 @@ func Doit(cate, subcate, body string) {
 		}
 	}()
 
-	if handlers, ok := conf.C.Procs[cate]; ok {
+	if handlers, ok := conf.Get().Procs[cate]; ok {
 		for _, p := range handlers.([]*conf.ProcAction) {
 			if p.Handler == "" {
 				continue
