@@ -38,7 +38,6 @@ type Conf struct {
 	}
 	VarHost *struct {
 		Addr string
-		Cgi  string
 	}
 }
 
@@ -70,7 +69,7 @@ func replaceTpl(src string, tpl map[string]interface{}) (dst []byte) {
 
 func remoteConf() {
 	c := Get()
-	if c.VarHost == nil || c.VarHost.Addr == "" || c.VarHost.Cgi == "" {
+	if c.VarHost == nil || c.VarHost.Addr == "" {
 		return
 	}
 
@@ -79,7 +78,7 @@ func remoteConf() {
 		for {
 			time.Sleep(time.Second * 3)
 
-			uri := fmt.Sprintf("http://%s:%d/%s", c.VarHost.Addr, c.AdminPort, strings.TrimPrefix(c.VarHost.Cgi, "/"))
+			uri := fmt.Sprintf("http://%s:%d/clog/conf", c.VarHost.Addr, c.AdminPort)
 			gpp := &utils.GPP{
 				Uri: uri,
 			}
