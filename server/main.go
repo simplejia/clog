@@ -111,7 +111,7 @@ func udp() {
 
 	request := make([]byte, 1024*50)
 	for {
-		readLen, err := conn.Read(request)
+		readLen, raddr, err := conn.ReadFrom(request)
 		if err != nil || readLen <= 0 {
 			continue
 		}
@@ -120,10 +120,15 @@ func udp() {
 		if len(ss) != 5 {
 			continue
 		}
-		cate := strings.Join(ss[:2], "/")
-		subcate := ss[2]
-		if len(ss[3]) > 0 {
-			subcate += "+" + ss[3]
+		cate, subcate := "", ""
+		cate = strings.Join(ss[:2], "/") // module+level
+		if str := ss[2]; str == "" {     // localip
+			subcate, _, _ = net.SplitHostPort(raddr.String())
+		} else {
+			subcate = str
+		}
+		if str := ss[3]; str != "" { // subcate
+			subcate += "+" + str
 		}
 		body := ss[4]
 
