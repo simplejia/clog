@@ -109,7 +109,7 @@ func udp() {
 	}
 	defer conn.Close()
 
-	request := make([]byte, 1024*50)
+	request := make([]byte, 1024*64)
 	for {
 		readLen, raddr, err := conn.ReadFrom(request)
 		if err != nil || readLen <= 0 {
