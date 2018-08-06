@@ -31,8 +31,11 @@ class CLog
             return;
         }   
 
-        $out = $cate . ',' . $content;
-        socket_sendto($sock, $out, strlen($out), 0, $this->ip, $this->port);
+        $seg = 65000;
+        for ($pos=0; $pos<strlen($content); $pos+=$seg) {
+            $out = $cate . ',' . substr($content, $pos, $seg);
+            socket_sendto($sock, $out, strlen($out), 0, $this->ip, $this->port);
+        }
         socket_close($sock);
     }   
 

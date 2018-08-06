@@ -35,7 +35,15 @@ func sendAgent(tube, content string) {
 	}
 	defer conn.Close()
 
-	conn.Write([]byte(tube + "," + content))
+	seg := 65000
+	for bpos, epos, l := 0, 0, len(content); bpos < l; bpos += seg {
+		epos = bpos + seg
+		if epos > l {
+			epos = l
+		}
+		out := tube + "," + content[bpos:epos]
+		conn.Write([]byte(out))
+	}
 }
 
 func Init(module, subcate string, level int, mode int) {
