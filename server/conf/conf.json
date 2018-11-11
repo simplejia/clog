@@ -3,7 +3,7 @@
         "port": 28702,
         "admin_port": 28703,
         "varhost": { // 定时获取远程服务器最新配置，用于参数动态变更
-            "addr": "",
+            "addr": ""
         },
         "tpl": { // 模板定义
             "logerr_demo": [
@@ -58,7 +58,7 @@
         "port": 28702,
         "admin_port": 28703,
         "varhost": { // 定时获取远程服务器最新配置，用于参数动态变更
-            "addr": "",
+            "addr": ""
         },
         "tpl": { // 模板定义
             "logerr_demo": [
@@ -80,7 +80,8 @@
                 {"handler": "filehandler"}
             ],
             "loginfo": [
-                {"handler": "filehandler"}
+                {"handler": "filehandler"},
+                {"handler": "influxdb_phphandler"}
             ]
         },
         "procs": {

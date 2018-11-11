@@ -208,6 +208,9 @@ func parse(fcontent []byte) (err error) {
 		c.Procs[k] = new_proc
 	}
 
+	clog.AddrFunc = func() (string, error) {
+		return fmt.Sprintf("127.0.0.1:%d", c.Port), nil
+	}
 	clog.Init(c.Clog.Name, "", c.Clog.Level, c.Clog.Mode)
 
 	Set(c)

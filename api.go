@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"reflect"
 	"strings"
 
 	"github.com/simplejia/utils"
@@ -46,6 +47,24 @@ func sendAgent(tube, content string) {
 	}
 }
 
+func iprint(params []interface{}) {
+	for pos, param := range params {
+		switch param.(type) {
+		case string, []byte:
+			params[pos] = param
+			continue
+		}
+
+		typ := reflect.TypeOf(param)
+		if typ.Implements(reflect.TypeOf((*error)(nil)).Elem()) || typ.Implements(reflect.TypeOf((*fmt.Stringer)(nil)).Elem()) {
+			params[pos] = fmt.Sprintf("%v", param)
+			continue
+		}
+
+		params[pos] = utils.Iprint(param)
+	}
+}
+
 func Init(module, subcate string, level int, mode int) {
 	if strings.Contains(module, ",") || strings.Contains(subcate, ",") {
 		panic("clog Init error, module or subcate contains ','")
@@ -63,6 +82,7 @@ func Init(module, subcate string, level int, mode int) {
 
 func Debug(format string, params ...interface{}) {
 	if Level&1 != 0 {
+		iprint(params)
 		content := fmt.Sprintf(format, params...)
 		if Mode&1 != 0 {
 			log.Println("[DEBUG]", content)
@@ -75,6 +95,7 @@ func Debug(format string, params ...interface{}) {
 
 func Warn(format string, params ...interface{}) {
 	if Level&2 != 0 {
+		iprint(params)
 		content := fmt.Sprintf(format, params...)
 		if Mode&1 != 0 {
 			log.Println("[WARN]", content)
@@ -87,6 +108,7 @@ func Warn(format string, params ...interface{}) {
 
 func Error(format string, params ...interface{}) {
 	if Level&4 != 0 {
+		iprint(params)
 		content := fmt.Sprintf(format, params...)
 		if Mode&1 != 0 {
 			log.Println("[ERROR]", content)
@@ -99,6 +121,7 @@ func Error(format string, params ...interface{}) {
 
 func Info(format string, params ...interface{}) {
 	if Level&8 != 0 {
+		iprint(params)
 		content := fmt.Sprintf(format, params...)
 		if Mode&1 != 0 {
 			log.Println("[INFO]", content)
@@ -110,6 +133,7 @@ func Info(format string, params ...interface{}) {
 }
 
 func Busi(sub string, format string, params ...interface{}) {
+	iprint(params)
 	content := fmt.Sprintf(format, params...)
 	if Mode&1 != 0 {
 		log.Println("[BUSI]", sub, content)
