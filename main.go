@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/simplejia/clog/server/conf"
-	"github.com/simplejia/clog/server/procs"
+	"github.com/simplejia/clog/conf"
+	"github.com/simplejia/clog/procs"
 	"github.com/simplejia/lc"
 )
 
@@ -32,8 +32,8 @@ func init() {
 func main() {
 	log.Println("main()")
 
-	go ws()
 	go udp()
+	go ws()
 	select {}
 }
 
@@ -65,32 +65,16 @@ func hget(w http.ResponseWriter, r *http.Request) {
 		subcate = host
 	}
 
-	k := p.Cate + "," + subcate
-	tube, ok := tubes[k]
-	if !ok {
-		tube = make(chan *s, 1e5)
-		tubes[k] = tube
-		go proc(k)
-	}
-
-	select {
-	case tube <- &s{
-		cate:    p.Cate,
-		subcate: subcate,
-		body:    p.Body,
-	}:
-	default:
-	}
+	add(p.Cate, subcate, p.Body)
 
 	w.WriteHeader(http.StatusOK)
 	return
 }
 
 func ws() {
-	http.HandleFunc("/clog/conf", conf.Cgi)
 	http.HandleFunc("/clog/api", hget)
 
-	addr := fmt.Sprintf("%s:%d", "0.0.0.0", conf.Get().AdminPort)
+	addr := fmt.Sprintf(":%d", conf.Get().Port)
 	err := http.ListenAndServe(addr, nil)
 	if err != nil {
 		log.Fatalln("net.ListenAndServe error:", err)
@@ -132,22 +116,27 @@ func udp() {
 		}
 		body := ss[4]
 
-		k := cate + "," + subcate
-		tube, ok := tubes[k]
-		if !ok {
-			tube = make(chan *s, 1e5)
-			tubes[k] = tube
-			go proc(k)
-		}
+		add(cate, subcate, body)
+	}
+}
 
-		select {
-		case tube <- &s{
-			cate:    cate,
-			subcate: subcate,
-			body:    body,
-		}:
-		default:
-		}
+func add(cate, subcate, body string) {
+	k := cate + "," + subcate
+	tube, ok := tubes[k]
+	if !ok {
+		tube = make(chan *s, 1e5)
+		tubes[k] = tube
+		go proc(k)
+	}
+
+	select {
+	case tube <- &s{
+		cate:    cate,
+		subcate: subcate,
+		body:    body,
+	}:
+	default:
+		log.Println("add data full")
 	}
 }
 

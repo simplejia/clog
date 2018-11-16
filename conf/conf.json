@@ -1,0 +1,51 @@
+{
+    "prod": {
+        "port": 28702,
+        "tpl": { // 模板定义
+            "logerr_demo": [
+                {"handler": "filehandler"}, 
+                {
+                    "handler": "alarmhandler", 
+                    "params": {
+                        "sender": "demo", // 发送者id
+                        "receivers": ["simplejia"], // 接收者
+                        "excludes": [], // strstr，满足条件者不报警
+                        "": null // placeholder
+                    }
+                }
+            ],
+            "logwar": [
+                {"handler": "filehandler"}
+            ],
+            "logdbg": [
+                {"handler": "filehandler"}
+            ],
+            "loginfo": [
+                {"handler": "filehandler"}
+            ]
+        },
+        "procs": {
+            "clog/logerr": "$logerr_demo",
+            "clog/logdbg": "$logdbg",
+            "clog/logwar": "$logwar",
+            "clog/loginfo": "$loginfo",
+
+            "demo/logerr": "$logerr_demo",
+            "demo/logdbg": "$logdbg",
+            "demo/logwar": "$logwar",
+            "demo/loginfo": "$loginfo",
+            "demo/logbusi_sub": [
+                {"handler": "filehandler"}
+            ],
+
+            "": null // placeholder
+        },
+        "clog": {
+            "name": "clog",
+            "mode": 3, // 0: none, 1: localfile, 2: clog (数字代表bit位)
+            "level": 14 // 0: none, 1: debug, 2: warn 4: error 8: info (数字代表bit位)
+        },
+
+        "": null // placeholder
+    }
+}

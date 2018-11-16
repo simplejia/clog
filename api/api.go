@@ -25,6 +25,19 @@ var AddrFunc = func() (string, error) {
 	return "127.0.0.1:28702", nil
 }
 
+// 请赋值成自己的split content的函数
+var SplitFunc = func(content string) (contents []string) {
+	for bpos, epos, seg, l := 0, 0, 65000, len(content); bpos < l; bpos += seg {
+		epos = bpos + seg
+		if epos > l {
+			epos = l
+		}
+		contents = append(contents, content[bpos:epos])
+	}
+
+	return
+}
+
 func sendAgent(tube, content string) {
 	addr, err := AddrFunc()
 	if err != nil {
@@ -36,13 +49,8 @@ func sendAgent(tube, content string) {
 	}
 	defer conn.Close()
 
-	seg := 65000
-	for bpos, epos, l := 0, 0, len(content); bpos < l; bpos += seg {
-		epos = bpos + seg
-		if epos > l {
-			epos = l
-		}
-		out := tube + "," + content[bpos:epos]
+	for _, c := range SplitFunc(content) {
+		out := tube + "," + c
 		conn.Write([]byte(out))
 	}
 }

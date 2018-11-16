@@ -4,7 +4,7 @@ import (
 	"log"
 	"runtime/debug"
 
-	"github.com/simplejia/clog/server/conf"
+	"github.com/simplejia/clog/conf"
 )
 
 var Handlers = map[string]HandlerFunc{}
