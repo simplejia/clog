@@ -67,7 +67,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/simplejia/clog"
+	"github.com/simplejia/clog/api"
 	"github.com/simplejia/utils"
 )
 
@@ -256,7 +256,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/simplejia/clog"
+	"github.com/simplejia/clog/api"
 	"github.com/simplejia/utils"
 )
 

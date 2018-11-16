@@ -58,7 +58,7 @@ func sendAgent(tube, content string) {
 func iprint(params []interface{}) {
 	for pos, param := range params {
 		switch param.(type) {
-		case string, []byte, bool:
+		case nil, string, []byte, bool:
 			params[pos] = param
 			continue
 		}
