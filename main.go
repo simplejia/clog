@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/simplejia/clog/api"
 	"github.com/simplejia/clog/conf"
 	"github.com/simplejia/clog/procs"
 	"github.com/simplejia/lc"
@@ -27,6 +28,12 @@ var tubes = make(map[string]chan *s)
 
 func init() {
 	lc.Init(1e5)
+
+	clog.AddrFunc = func() (string, error) {
+		return fmt.Sprintf("127.0.0.1:%d", conf.Get().Port), nil
+	}
+	c := conf.Get()
+	clog.Init(c.Clog.Name, "", c.Clog.Level, c.Clog.Mode)
 }
 
 func main() {
