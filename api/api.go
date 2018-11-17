@@ -58,12 +58,15 @@ func sendAgent(tube, content string) {
 func iprint(params []interface{}) {
 	for pos, param := range params {
 		switch param.(type) {
-		case nil, string, []byte, bool:
-			params[pos] = param
+		case nil, string, []byte:
 			continue
 		}
 
 		typ := reflect.TypeOf(param)
+		if kind := typ.Kind(); kind <= reflect.Complex128 {
+			continue
+		}
+
 		if typ.Implements(reflect.TypeOf((*error)(nil)).Elem()) || typ.Implements(reflect.TypeOf((*fmt.Stringer)(nil)).Elem()) {
 			params[pos] = fmt.Sprintf("%v", param)
 			continue
