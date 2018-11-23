@@ -57,8 +57,9 @@ func replaceTpl(src string, tpl map[string]json.RawMessage) (dst []byte) {
 	return
 }
 
-func reloadConf() {
-	var lastbody []byte
+func reloadConf(content []byte) {
+	lastbody := content
+
 	for {
 		time.Sleep(time.Second * 3)
 
@@ -68,7 +69,7 @@ func reloadConf() {
 			continue
 		}
 
-		if lastbody != nil && bytes.Compare(lastbody, body) == 0 {
+		if bytes.Compare(lastbody, body) == 0 {
 			continue
 		}
 
@@ -166,5 +167,5 @@ func init() {
 		os.Exit(-1)
 	}
 
-	go reloadConf()
+	go reloadConf(fcontent)
 }
