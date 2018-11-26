@@ -67,6 +67,11 @@ func iprint(params []interface{}) {
 			continue
 		}
 
+		v := reflect.ValueOf(param)
+		if v.IsNil() {
+			continue
+		}
+
 		if typ.Implements(reflect.TypeOf((*error)(nil)).Elem()) || typ.Implements(reflect.TypeOf((*fmt.Stringer)(nil)).Elem()) {
 			params[pos] = fmt.Sprintf("%v", param)
 			continue
