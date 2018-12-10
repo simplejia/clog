@@ -68,8 +68,11 @@ func iprint(params []interface{}) {
 		}
 
 		v := reflect.ValueOf(param)
-		if v.IsNil() {
-			continue
+		switch typ.Kind() {
+		case reflect.Ptr, reflect.Map, reflect.Slice:
+			if v.IsNil() {
+				continue
+			}
 		}
 
 		if typ.Implements(reflect.TypeOf((*error)(nil)).Elem()) || typ.Implements(reflect.TypeOf((*fmt.Stringer)(nil)).Elem()) {
