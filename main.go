@@ -100,6 +100,10 @@ func udp() {
 	}
 	defer conn.Close()
 
+	if err := conn.SetReadBuffer(50 * 1024 * 1024); err != nil {
+		log.Fatalln("conn.SetReadBuffer error:", err)
+	}
+
 	request := make([]byte, 1024*64)
 	for {
 		readLen, raddr, err := conn.ReadFrom(request)

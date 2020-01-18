@@ -129,5 +129,5 @@ func AlarmHandler(cate, subcate, body string, params map[string]interface{}) {
 }
 
 func init() {
-	RegisterHandler("alarmhandler", AlarmHandler)
+	RegisterHandler("alarm_handler", AlarmHandler)
 }
