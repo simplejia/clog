@@ -137,7 +137,7 @@ func add(cate, subcate, body string) {
 	if !ok {
 		tube = make(chan *s, 1e5)
 		tubes[k] = tube
-		go proc(k)
+		go proc(tube)
 	}
 
 	select {
@@ -151,8 +151,7 @@ func add(cate, subcate, body string) {
 	}
 }
 
-func proc(k string) {
-	tube := tubes[k]
+func proc(tube chan *s) {
 	for d := range tube {
 		procs.Doit(d.cate, d.subcate, d.body)
 	}
